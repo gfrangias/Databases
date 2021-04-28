@@ -63,7 +63,7 @@ WHERE roomrate."idHotel" = '11'
 
 
 SELECT DISTINCT roombooking."hotelbookingID", person.fname, person.lname, 
-hotelbooking.reservationdate,
+hotelbooking.reservationdate, room."idHotel",
 CASE 
 	WHEN EXISTS (SELECT 1 FROM employee WHERE employee."idEmployee" = hotelbooking."bookedbyclientID" LIMIT 1) THEN
 		'employee'
@@ -80,3 +80,14 @@ SELECT EXISTS (SELECT 1 FROM client WHERE client."idClient" = '10' LIMIT 1);
 
 
 INNER JOIN roombooking ON hotel."idHotel" = roombooking.
+
+SELECT activity.*
+FROM participates
+INNER JOIN activity ON participates.idhotel = '15' AND 
+participates.starttime = activity.starttime AND participates.endtime = activity.endtime AND
+participates.weekday = activity.weekday
+ORDER BY activity.idhotel ASC;
+
+SELECT *
+FROM activity 
+WHERE activity.idhotel = '15'
