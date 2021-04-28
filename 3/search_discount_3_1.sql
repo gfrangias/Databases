@@ -1,4 +1,4 @@
-CREATE FUNCTION search_discount_30()
+CREATE FUNCTION search_discount_3_1()
 RETURNS TABLE(city character varying(45), country character varying(45)) AS
 $$
 BEGIN
@@ -9,4 +9,4 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql' STABLE;
 
-SELECT search_discount_30();
+--SELECT * FROM search_discount_3_1();
