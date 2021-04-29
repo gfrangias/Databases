@@ -20,4 +20,4 @@ INNER JOIN person ON hotelbooking."bookedbyclientID" = person."idPerson";
 END; 
 $$ LANGUAGE 'plpgsql' STABLE;
 
---SELECT * FROM search_bookings_3_4('89')
+SELECT * FROM search_bookings_3_4('89')
