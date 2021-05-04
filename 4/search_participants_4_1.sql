@@ -4,10 +4,15 @@ AS
 $$
 BEGIN
 RETURN QUERY
+
+--Return client ID, and 0 if there is no participation and the number of participations if there are
 SELECT hb."bookedbyclientID", CASE WHEN part."idPerson" IS NULL THEN '0'
 							  WHEN part."idPerson" IS NOT NULL THEN count(*)
 							  END partitipations
+--From the participations of this hotel
 FROM (SELECT * FROM participates WHERE participates.idhotel = hotel_id) as part
+
+--Check if the people associated with the hotel are participating in hotel activities
 RIGHT JOIN (SELECT DISTINCT hotelbooking."bookedbyclientID"
 							FROM (SELECT * FROM room WHERE room."idHotel" = hotel_id) AS r
 							INNER JOIN roombooking ON roombooking."roomID" = r."idRoom"
@@ -18,5 +23,5 @@ END;
 $$ 
 LANGUAGE 'plpgsql' STABLE;
 
-SELECT * FROM search_participants_4_1('53')
+--SELECT * FROM search_participants_4_1('53')
 

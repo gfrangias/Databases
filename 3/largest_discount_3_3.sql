@@ -3,13 +3,19 @@ RETURNS TABLE(idHotel integer, name character varying(45), roomtype character va
 $$
 BEGIN
 RETURN QUERY
+
+--Return hotel ID, name and room type
 SELECT hotel."idHotel", hotel."name", roomrate.roomtype
 FROM hotel
+
+--Find the room rates of this hotel
 INNER JOIN roomrate ON hotel."idHotel" = roomrate."idHotel" 
+
+--Select the max discount
 WHERE roomrate.discount = (SELECT MAX(roomrate.discount) FROM roomrate)
 ORDER BY roomrate.roomtype ASC;
 END;
 $$ LANGUAGE 'plpgsql' STABLE;
 
---SELECT largest_discount_3_3();
+--SELECT * FROM largest_discount_3_3();
 

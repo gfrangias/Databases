@@ -5,9 +5,15 @@ AS
 $$
 BEGIN
 RETURN QUERY
+
+--Return room type, minimum rate of this room type, the hotel's ID, the hotel's name and the city 
 SELECT DISTINCT ON (roomrate.roomtype) roomrate.roomtype, MIN(roomrate.rate),
 					hotels."idHotel", hotels.name, hotels.city
+
+--From all the hotels of this country
 FROM (SELECT * FROM hotel WHERE hotel.country = sel_country) AS hotels
+
+-- Find the room rates of every room type by ascending order 
 INNER JOIN roomrate ON hotels."idHotel" = roomrate."idHotel"
 GROUP BY roomrate.roomtype, roomrate.rate, hotels."idHotel", hotels.name, hotels.city
 ORDER BY roomrate.roomtype, roomrate.rate ASC;

@@ -3,8 +3,12 @@ RETURNS SETOF numeric AS
 $$
 BEGIN
 RETURN QUERY
+
+--Return the average age of the clients booking rooms
 SELECT TRUNC(AVG(date_part('year', age(person.dateofbirth))::int),2)
-FROM (SELECT * FROM roomtype WHERE roomtype.typename = 'Quad') AS rt
+
+-- Get the persons that have booked a room of this room type
+FROM (SELECT * FROM roomtype WHERE roomtype.typename = room_type) AS rt
 INNER JOIN room ON rt.typename = room.roomtype
 INNER JOIN roombooking ON roombooking."roomID" = room."idRoom"
 INNER JOIN person ON person."idPerson" = roombooking."bookedforpersonID";
@@ -12,4 +16,4 @@ END;
 $$
 LANGUAGE 'plpgsql' STABLE;
 
---SELECT average_age_4_2('Suite')
+--SELECT average_age_4_2('Quad')
