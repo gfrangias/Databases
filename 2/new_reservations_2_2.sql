@@ -1,4 +1,4 @@
- CREATE OR REPLACE FUNCTION public.new_reservations(
+ CREATE OR REPLACE FUNCTION public.new_reservations_2_2(
 	start_date date,
 	end_date date,
 	hotel_id integer,
@@ -90,4 +90,4 @@ END;
 $$
 LANGUAGE 'plpgsql';
 
---SELECT new_reservations('2021-06-01', '2021-10-01', '65', '10');
+--SELECT new_reservations_2_2('2021-06-01', '2021-10-01', '65', '10');

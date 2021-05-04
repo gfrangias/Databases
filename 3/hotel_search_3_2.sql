@@ -12,9 +12,14 @@ BEGIN
 RETURN QUERY
 SELECT DISTINCT hotel.*
 FROM hotel
+--Find the rooms of this hotel
 INNER JOIN room ON hotel."idHotel" = room."idHotel"
+
+--Find the 'Studios' where the rate with discount is < 80$
 INNER JOIN roomrate ON hotel."idHotel" = roomrate."idHotel" AND roomrate.roomtype = 'Studio' 
 					AND roomrate.rate - ( (roomrate.discount * roomrate.rate) /100) < 80
+
+--The hotel should have 'Breakfast' and 'Restaurant' facilities
 INNER JOIN hotelfacilities ON hotel."idHotel" = hotelfacilities."idHotel" AND 
 (SELECT count(1) = 2 FROM hotelfacilities WHERE ( hotelfacilities."idHotel" = hotel."idHotel" AND 
 												 (hotelfacilities."nameFacility" = 'Breakfast' 
