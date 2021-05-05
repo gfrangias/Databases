@@ -1,5 +1,5 @@
 CREATE FUNCTION greater_earnings_4_4()
-RETURNS TABLE(idhotel integer, city character varying(45), earnings double precision)
+RETURNS TABLE(idhotel integer, city character varying(45), earnings real)
 AS
 $$
 DECLARE
@@ -7,29 +7,31 @@ DECLARE
 BEGIN
 
 --Compute the average of the earnings
-average = AVG(rr.sum)
---Compute the earnings of all of the hotels
-FROM (SELECT roomrate."idHotel", SUM(roomrate.rate - roomrate.rate*roomrate.discount*0.01)
-FROM roomrate
-GROUP BY roomrate."idHotel") AS rr;
+average = AVG(earnings.sum)
+FROM (
+	SELECT DISTINCT ON (hotel."idHotel") hotel."idHotel", SUM("transaction".amount)
+	FROM hotel 
+	INNER JOIN room ON room."idHotel" = hotel."idHotel"
+	INNER JOIN roombooking ON roombooking."roomID" = room."idRoom"
+	INNER JOIN hotelbooking ON hotelbooking.idhotelbooking = roombooking."hotelbookingID"
+	INNER JOIN "transaction" ON "transaction".idhotelbooking = hotelbooking.idhotelbooking
+	GROUP BY hotel."idHotel"
+	) AS earnings;
 
 
 RETURN QUERY
 --Return all the hotel IDs, cities and earnings
-SELECT DISTINCT ON (hotel."idHotel") hotel."idHotel",
-hotel.city, rr.sum															
-FROM hotel
-
---Compute the earnings of this hotel
-INNER JOIN
-(SELECT roomrate."idHotel", SUM(roomrate.rate - roomrate.rate*roomrate.discount*0.01)
-FROM roomrate
-GROUP BY roomrate."idHotel") AS rr ON rr."idHotel" = hotel."idHotel"
-
---Display only if the earnings are higher than the average earnings of a hotel
-WHERE rr.sum > average
-GROUP BY hotel."idHotel", rr.sum;
-
+SELECT earnings."idHotel", earnings.city, earnings.sum
+FROM (
+	SELECT DISTINCT ON (hotel."idHotel") hotel."idHotel", hotel.city, SUM("transaction".amount)
+	FROM hotel 
+	INNER JOIN room ON room."idHotel" = hotel."idHotel"
+	INNER JOIN roombooking ON roombooking."roomID" = room."idRoom"
+	INNER JOIN hotelbooking ON hotelbooking.idhotelbooking = roombooking."hotelbookingID"
+	INNER JOIN "transaction" ON "transaction".idhotelbooking = hotelbooking.idhotelbooking
+	GROUP BY hotel."idHotel"
+	) AS earnings
+	WHERE earnings.sum > average;
 END;
 $$
 LANGUAGE 'plpgsql';
