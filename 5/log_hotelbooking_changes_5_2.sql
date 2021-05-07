@@ -43,14 +43,14 @@ LANGUAGE 'plpgsql';
 
 -- Employee non-manager
 UPDATE hotelbooking
-SET cancellationdate = '2021-08-15', totalamount = '100'
+SET cancellationdate = '2021-08-15', totalamount = NULL
 WHERE hotelbooking.idhotelbooking = '3170';
 
 SELECT * FROM hotelbooking WHERE hotelbooking.idhotelbooking = '3170';
 
 -- Employee manager
 UPDATE hotelbooking
-SET cancellationdate = '2022-03-10' 
+SET cancellationdate = '2022-03-11' 
 WHERE hotelbooking.idhotelbooking = '5906';
 
 SELECT * FROM hotelbooking WHERE hotelbooking.idhotelbooking = '5906';

@@ -12,7 +12,7 @@ FROM hotel
 INNER JOIN roomrate ON hotel."idHotel" = roomrate."idHotel" 
 
 --Select the max discount
-WHERE roomrate.discount = (SELECT MAX(roomrate.discount) FROM roomrate)
+WHERE roomrate.discount = (SELECT MAX(roomrate.discount) FROM roomrate WHERE roomrate."idHotel" = hotel."idHotel")
 ORDER BY roomrate.roomtype ASC;
 END;
 $$ LANGUAGE 'plpgsql' STABLE;
