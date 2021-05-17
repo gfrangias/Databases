@@ -19,21 +19,20 @@ num_of_rooms = count(*)
 FROM (SELECT * FROM room WHERE room."idHotel" = hotel_id) as rooms
 INNER JOIN roombooking AS roombookings ON roombookings."roomID" = rooms."idRoom";
 
+RETURN QUERY
 -- Insert all room bookings of this hotel in the temporary table 'roombookings'
-INSERT INTO roombookings(room_ID, checkin_date, checkout_date) 
+WITH roombookings AS(
 SELECT roombookings."roomID", roombookings.checkin, roombookings.checkout
 FROM (SELECT * FROM room WHERE room."idHotel" = hotel_id) as rooms
-INNER JOIN roombooking AS roombookings ON roombookings."roomID" = rooms."idRoom"; 
-
+INNER JOIN roombooking AS roombookings ON roombookings."roomID" = rooms."idRoom")
 --Compute the vacancy percentage for every month of this year
-RETURN QUERY
-SELECT (SELECT double_to_month(EXTRACT(month FROM (DATE_TRUNC('month',roombookings.checkin_date))))) AS "Month",
-			count(roombookings.room_id)*'100'/num_of_rooms AS "Vacancy"
+SELECT (SELECT double_to_month(EXTRACT(month FROM (DATE_TRUNC('month',roombookings.checkin))))) AS "Month",
+			count(roombookings."roomID")*'100'/num_of_rooms AS "Vacancy"
 			FROM roombookings
 			WHERE
-			(EXTRACT(year FROM roombookings.checkin_date) = year OR
-			EXTRACT(year FROM roombookings.checkout_date) = year)
-			GROUP BY (SELECT double_to_month(EXTRACT(month FROM (DATE_TRUNC('month',roombookings.checkin_date)))));
+			(EXTRACT(year FROM roombookings.checkin) = year OR
+			EXTRACT(year FROM roombookings.checkout) = year)
+			GROUP BY (SELECT double_to_month(EXTRACT(month FROM (DATE_TRUNC('month',roombookings.checkin)))));
 END
 $$
 LANGUAGE 'plpgsql';
