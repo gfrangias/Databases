@@ -5,22 +5,22 @@ $$
 DECLARE
 	average real;
 BEGIN
-
+		 
+RETURN QUERY
+--Return all the hotel IDs, cities and earnings
 --Compute the average of the earnings
-average = AVG(earnings.sum)
+WITH city_average AS
+(SELECT earnings.city, AVG(earnings.sum)
 FROM (
-	SELECT DISTINCT ON (hotel."idHotel") hotel."idHotel", SUM("transaction".amount)
+	SELECT DISTINCT ON (hotel."idHotel") hotel."idHotel", hotel.city, SUM("transaction".amount)
 	FROM hotel 
 	INNER JOIN room ON room."idHotel" = hotel."idHotel"
 	INNER JOIN roombooking ON roombooking."roomID" = room."idRoom"
 	INNER JOIN hotelbooking ON hotelbooking.idhotelbooking = roombooking."hotelbookingID"
 	INNER JOIN "transaction" ON "transaction".idhotelbooking = hotelbooking.idhotelbooking
 	GROUP BY hotel."idHotel"
-	) AS earnings;
-
-
-RETURN QUERY
---Return all the hotel IDs, cities and earnings
+	) AS earnings
+GROUP BY earnings.city)
 SELECT earnings."idHotel", earnings.city, earnings.sum
 FROM (
 	SELECT DISTINCT ON (hotel."idHotel") hotel."idHotel", hotel.city, SUM("transaction".amount)
@@ -31,7 +31,7 @@ FROM (
 	INNER JOIN "transaction" ON "transaction".idhotelbooking = hotelbooking.idhotelbooking
 	GROUP BY hotel."idHotel"
 	) AS earnings
-	WHERE earnings.sum > average;
+	WHERE earnings.sum > (SELECT city_average.avg FROM city_average WHERE earnings.city = city_average.city);
 END;
 $$
 LANGUAGE 'plpgsql';
