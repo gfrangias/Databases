@@ -5,15 +5,12 @@ $$
 DECLARE
 	average real;
 BEGIN
-
-IF EXISTS (SELECT relname FROM pg_class WHERE relname = 'city_average') THEN
-	DROP TABLE city_average;
-END IF;
-		   
-CREATE TEMP TABLE city_average (city character varying, average_of_city real);
-
+		 
+RETURN QUERY
+--Return all the hotel IDs, cities and earnings
 --Compute the average of the earnings
-INSERT INTO city_average(SELECT earnings.city, AVG(earnings.sum)
+WITH city_average AS
+(SELECT earnings.city, AVG(earnings.sum)
 FROM (
 	SELECT DISTINCT ON (hotel."idHotel") hotel."idHotel", hotel.city, SUM("transaction".amount)
 	FROM hotel 
@@ -23,10 +20,7 @@ FROM (
 	INNER JOIN "transaction" ON "transaction".idhotelbooking = hotelbooking.idhotelbooking
 	GROUP BY hotel."idHotel"
 	) AS earnings
-GROUP BY earnings.city);
-		 
-RETURN QUERY
---Return all the hotel IDs, cities and earnings
+GROUP BY earnings.city)
 SELECT earnings."idHotel", earnings.city, earnings.sum
 FROM (
 	SELECT DISTINCT ON (hotel."idHotel") hotel."idHotel", hotel.city, SUM("transaction".amount)
@@ -37,7 +31,7 @@ FROM (
 	INNER JOIN "transaction" ON "transaction".idhotelbooking = hotelbooking.idhotelbooking
 	GROUP BY hotel."idHotel"
 	) AS earnings
-	WHERE earnings.sum > (SELECT city_average.average_of_city FROM city_average WHERE earnings.city = city_average.city);
+	WHERE earnings.sum > (SELECT city_average.avg FROM city_average WHERE earnings.city = city_average.city);
 END;
 $$
 LANGUAGE 'plpgsql';
