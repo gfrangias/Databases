@@ -25,15 +25,6 @@ BEGIN
 	
 	reservation_date = start_date - integer '20';
 	cancellation_date = start_date - integer '10';
-	-- Check if the tables exist. If so drop them.
-	IF EXISTS (SELECT relname FROM pg_class WHERE relname = 'tabletemp') THEN
-		DROP TABLE tabletemp;
-	END IF;
-	IF EXISTS (SELECT relname FROM pg_class WHERE relname = 'overlaps_table') THEN
-		DROP TABLE overlaps_table;
-	END IF;
-	CREATE TEMP TABLE tabletemp(checkin date, checkout date);
-	CREATE TEMP TABLE overlaps_table(checkin date, checkout date);
 	
 	-- Do reservations_num reservations
 	FOR i IN 1..reservations_num LOOP
@@ -62,14 +53,15 @@ BEGIN
 				-- Choose random checkin/checkout dates from the given dates
 				rand_checkin = date(start_date::date + trunc(random() * (end_date - start_date)) * '1 day'::interval);
 				rand_checkout = date(rand_checkin::date + trunc(random() * (end_date - rand_checkin)) * '1 day'::interval);
-				-- Delete the temporary tables 
-				DELETE FROM tabletemp;
-				DELETE FROM overlaps_table;
-				-- Find the previous reservations of this room
-				INSERT INTO tabletemp(checkin, checkout) SELECT checkin, checkout FROM roombooking WHERE "roomID" = room_id;
-				-- Check for overlaps
-				INSERT INTO overlaps_table SELECT * FROM tabletemp WHERE (tabletemp.checkin, tabletemp.checkout) OVERLAPS (rand_checkin, rand_checkout);
-				num_of_overlapses = COUNT(*) FROM overlaps_table;
+				
+				num_of_overlapses = ( SELECT * FROM (
+				WITH overlaps_table AS 
+				(SELECT * FROM (SELECT * FROM roombooking WHERE "roomID" = room_id) AS previous_bookings 
+				 WHERE (previous_bookings.checkin, previous_bookings.checkout)
+				 OVERLAPS (rand_checkin, rand_checkout))
+				 --OVERLAPS (date '2021-07-15',date '2021-07-17'))
+				SELECT count(*) FROM overlaps_table) AS overlapses);
+				 
 				EXIT WHEN num_of_overlapses = 0;
 			END LOOP;
 
