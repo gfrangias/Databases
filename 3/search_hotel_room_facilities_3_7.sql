@@ -4,19 +4,17 @@ AS
 $$
 BEGIN
 
+PERFORM update_vacancy_of_rooms();
+
 RETURN QUERY
 SELECT DISTINCT ON(room."idRoom") room."idRoom",room."idHotel", 
 (SELECT hotel."name" FROM hotel WHERE hotel."idHotel" = room."idHotel")
 FROM room
 INNER JOIN hotelfacilities ON hotelfacilities."idHotel" = room."idHotel"
 INNER JOIN roomfacilities ON roomfacilities."idRoom" = room."idRoom"
-INNER JOIN (SELECT * FROM roombooking 
-			WHERE NOT (roombooking.checkin, roombooking.checkout) 
-			OVERLAPS (NOW()::date, NOW()::date)) as roombookings
-ON roombookings."roomID" = room."idRoom" 
 INNER JOIN hotel ON hotel."idHotel" = room."idHotel"
 WHERE hotelfacilities."nameFacility" = hotel_facility AND
-roomfacilities."nameFacility" = room_facility
+roomfacilities."nameFacility" = room_facility AND room.vacant = '1'
 ORDER BY room."idRoom";
 
 END;
