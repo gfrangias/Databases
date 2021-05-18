@@ -4,6 +4,7 @@ AS
 $$
 BEGIN
 
+--Update the vacancy of rooms today
 PERFORM update_vacancy_of_rooms();
 
 RETURN QUERY
