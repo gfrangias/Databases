@@ -6,14 +6,6 @@ DECLARE
 
 BEGIN
 
---Check if the temporary table 'roombookings' already exists
-IF EXISTS (SELECT relname FROM pg_class WHERE relname = 'roombookings') THEN
-	DROP TABLE roombookings;
-END IF;
-
---Create temporary table 'roombookings'
-CREATE TEMP TABLE roombookings(room_ID integer, checkin_date date, checkout_date date);
-
 --Compute the number of rooms of this hotel
 num_of_rooms = count(*)
 FROM (SELECT * FROM room WHERE room."idHotel" = hotel_id) as rooms
